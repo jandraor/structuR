@@ -70,7 +70,12 @@ find_geodetic_cycles <- function(graph) {
     loops_in_ss <- delete.NULLs(loops_in_ss)
 
   })
-  geodetic_cycles <- delete.NULLs(geodetic_cycles)
 
-  unlist(geodetic_cycles, recursive = FALSE)
+  geodetic_cycles <- delete.NULLs(geodetic_cycles)
+  geodetic_cycles <- unlist(geodetic_cycles, recursive = FALSE)
+  names_gc        <- paste0("L", 1:length(geodetic_cycles))
+
+  names(geodetic_cycles) <- names_gc
+
+  geodetic_cycles
 }
