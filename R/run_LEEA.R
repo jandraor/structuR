@@ -57,24 +57,6 @@ calculate_ee <- function(eigenvalue, graph, row, rx, lx, fx, gx) {
   elasticities
 }
 
-evaluate_matrix <- function(expressionMatrix, values_df) {
-  nrows <- nrow(expressionMatrix)
-  ncols <- ncol(expressionMatrix)
-  evaluated_matrix <- matrix(NA, nrow = nrows, ncol = ncols) #empty matrix
-  rownames(evaluated_matrix) <- rownames(expressionMatrix)
-  colnames(evaluated_matrix) <- colnames(expressionMatrix)
-
-  for(i in 1:nrows) {
-
-    for(j in 1:ncols){
-      expr_elem <- expressionMatrix[i,j]
-      eval_elem <- with(values_df, eval(expr_elem))
-      evaluated_matrix[i, j] <- eval_elem
-    }
-  }
-  evaluated_matrix
-}
-
 run_LEEA <- function (graph, sim_df) {
   SILS             <- find_SILS(graph)
   cycle_matrix     <- as_cycle_matrix(graph, SILS)
@@ -207,5 +189,10 @@ run_LEEA <- function (graph, sim_df) {
 
   list(loop_gains = lg_over_time,
        eigenvalues = eigenvalues_over_time,
-       loop_analysis = loop_analysis_over_time)
+       loop_analysis = loop_analysis_over_time,
+       gains_matrices = list(A_matrix = Am,
+                             B_matrix = Bm,
+                             C_matrix = Cm,
+                             D_matrix = Dm),
+       graph = graph)
 }
