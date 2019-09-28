@@ -150,6 +150,7 @@ run_LEEA <- function (graph, sim_df) {
   }
 
   leea_timestep <- by(sim_df, 1:nrow(sim_df), function(row, Am, Bm, Cm, Dm){
+
     evaluated_Am <- Am
     evaluated_Bm <- evaluate_matrix(Bm, row)
     evaluated_Cm <- evaluate_matrix(Cm, row)
@@ -183,19 +184,17 @@ run_LEEA <- function (graph, sim_df) {
       fx <- lx %*% evaluated_Bm %*% Um
       gx <- Um %*% evaluated_Cm %*% rx
 
-      if(z != -1000) {
-        linkEla         <- calculate_ee(z, graph, row, rx, lx, fx, gx)
-        loop_elasticity <- inv_cm %*% linkEla
-        loop_influence  <- loop_elasticity * z
+      linkEla         <- calculate_ee(z, graph, row, rx, lx, fx, gx)
+      loop_elasticity <- inv_cm %*% linkEla
+      loop_influence  <- loop_elasticity * z
 
-        data.frame(eigenvalue_id       = names(z),
-                   time                = row$time,
-                   loop_id             = rownames(loop_elasticity),
-                   loop_influence_Re   = Re(loop_influence[ , 1]),
-                   loop_influence_Im   = Im(loop_influence[ , 1]),
-                   loop_influence_abs  = abs(loop_influence[ , 1]),
-                   stringsAsFactors = F)
-      }
+      data.frame(eigenvalue_id       = names(z),
+                 time                = row$time,
+                 loop_id             = rownames(loop_elasticity),
+                 loop_influence_Re   = Re(loop_influence[ , 1]),
+                 loop_influence_Im   = Im(loop_influence[ , 1]),
+                 loop_influence_abs  = abs(loop_influence[ , 1]),
+                 stringsAsFactors = F)
     })
 
     list(eigenvalues = eigenvalues_df, loop_analysis = loop_analysis_df)
