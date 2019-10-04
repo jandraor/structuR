@@ -50,8 +50,8 @@ calculate_weights <- function(comp, stocks) {
 
   }
   list(weights = weights_list,
-       thetat = theta_list,
-       ct = ct,
+       thetas = theta_list,
+       constants = ct,
        mode_index = mode_index)
 }
 
@@ -63,7 +63,7 @@ run_DDWA <- function(time_DDWA, sim_df, gains_matrices, graph) {
   vars_expr          <- lapply(vars_names, rlang::parse_expr)
   vars_values        <- sapply(vars_expr, function(x) with(row, eval(x)))
   names(vars_values) <- vars_names
-  n_vars             <- length(vars)
+  n_vars             <- length(vars_names)
 
   stock_names         <- igraph::V(graph)[type == "stock"]$name
   stock_expr          <- lapply(stock_names, rlang::parse_expr)
@@ -84,6 +84,17 @@ run_DDWA <- function(time_DDWA, sim_df, gains_matrices, graph) {
   eigenvalues  <- eigensystem$values
   eigenvectors <- t(eigensystem$vectors)
 
+  #real part of behaviour modes
+  real_part_bm        <- Re(eigenvalues)
+
+  #imaginary part of behaviour modes
+  img_part_bm         <- Im(eigenvalues)
+
+  behaviour_modes_df  <- data.frame(stringsAsFactors = FALSE,
+                                    behaviour_mode = 1:length(eigenvalues),
+                                    real_part = real_part_bm,
+                                    img_part = img_part_bm ) %>%
+    filter(real_part !=0 & img_part != 0)
 
   ev_zero    <- sum(zapsmall(eigenvalues) == 0) # Number of eigenvalues equal to 0
   ev_nonzero <- length(eigenvalues) - ev_zero
@@ -94,4 +105,28 @@ run_DDWA <- function(time_DDWA, sim_df, gains_matrices, graph) {
     eigenvectors[1:ev_nonzero,]
 
   output_cw <- calculate_weights(comp, stock_values)
+
+  stocks_weights <- lapply(output_cw$weights, function(weights_list) {
+    names(weights_list) <- stock_names
+    weights_list
+  })
+
+  thetas <- lapply(output_cw$thetas, function(thetas_list) {
+
+    if(length(thetas_list) == length(stock_names)){
+      names(thetas_list) <- stock_names
+    }
+
+    thetas_list
+  })
+
+
+  list(behavior_modes       = behaviour_modes_df,
+       # stock equations components
+       stock_equations_comp = list(
+         stocks = stock_names,
+         eigenvalues = eigenvalues[output_cw$mode_index],
+         constants   = as.list(output_cw$constants),
+         weights     = stocks_weights,
+         thetas      = thetas))
 }
