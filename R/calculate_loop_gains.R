@@ -1,4 +1,5 @@
-calculate_loop_gains <- function(graph) {
+calculate_loop_gains <- function(graph, sim_df = NULL, time_steps = NULL,
+                                 method = "analytical") {
   edges   <- igraph::E(graph)
   n_edges <- igraph::gsize(graph)
 
