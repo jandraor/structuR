@@ -1,4 +1,4 @@
-delete.NULLs  <-  function(x.list){   # delele null/empty entries in a list
+delete.NULLs  <-  function(x.list){   # delete null/empty entries in a list
   x.list[unlist(lapply(x.list, length) != 0)]
 }
 
@@ -6,9 +6,9 @@ delete.NULLs  <-  function(x.list){   # delele null/empty entries in a list
 find_geodetic_cycles <- function(graph) {
   strong_components   <- igraph::components(graph, mode = "strong")
 
-  members <- igraph::membership(igraph::clusters(gr, mode = "strong"))
+  members <- igraph::membership(igraph::clusters(graph, mode = "strong"))
 
-  strong_subgraphs <- lapply(unique(members), gr = gr,
+  strong_subgraphs <- lapply(unique(members), gr = graph,
                           function (x, gr){
                             igraph::induced.subgraph(gr, which(members == x))
                           })
@@ -38,44 +38,45 @@ find_geodetic_cycles <- function(graph) {
 
 
     # Loops in strong subgraph
+    loops_in_ss <- list()
 
-    loops_in_ss <- lapply(loop_lengths, function(loop_length) {
+    for(loop_length in loop_lengths) {
       pairs <- which(loop_matrix == loop_length, arr.ind = TRUE)
 
-
-      loops_found <- NULL
-
-      for(i in seq_along(length(pairs))) {
+      for(i in seq_len(nrow(pairs))) {
         u <- nodes[pairs[i, 1]]
         v <- nodes[pairs[i, 2]]
-        path_u_v <- names(igraph::all_simple_paths(graph, from = u, to = v)[[1]])
-        path_v_u <- names(igraph::all_simple_paths(graph, from = v, to = u)[[1]])
 
-        path_back <- NULL
-        if(length(path_v_u) > 2) {
-          path_back <- path_v_u[c(-1, -length(path_v_u))]
-        }
+        paths_u_v <- igraph::all_simple_paths(graph, from = u, to = v)
+        paths_v_u <- igraph::all_simple_paths(graph, from = v, to = u)
 
-        circuit <- c(path_u_v, path_back)
+        paths_permutation <- purrr::cross2(paths_u_v, paths_v_u)
 
-        if(sum(duplicated(circuit)) > 0) {
-          next
-        }
+        purrr::walk(paths_permutation, function(permutation) {
+          path_u_v  <- names(permutation[[1]])
+          path_v_u <- names(permutation[[2]])
 
-        loops_found <- c(loops_found, circuit)
+          path_back <- NULL
+          if(length(path_v_u) > 2) {
+            # removes the repeated element & the first element in the circuit
+            path_back <- path_v_u[c(-1, -length(path_v_u))]
+          }
 
+          circuit <- c(path_u_v, path_back)
+
+          if(sum(duplicated(circuit)) == 0) {
+            loops_in_ss <<- c(loops_in_ss, list(circuit))
+          }
+        })
       }
-      loops_found
-    })
-    loops_in_ss <- delete.NULLs(loops_in_ss)
-
+    }
+    is_duplicated <- duplicated(lapply(loops_in_ss, sort))
+    unique_loops <- loops_in_ss[!is_duplicated]
   })
 
   geodetic_cycles <- delete.NULLs(geodetic_cycles)
   geodetic_cycles <- unlist(geodetic_cycles, recursive = FALSE)
   names_gc        <- paste0("L", 1:length(geodetic_cycles))
-
   names(geodetic_cycles) <- names_gc
-
   geodetic_cycles
 }
