@@ -66,27 +66,24 @@ sim_df <- data.frame(
   recoveryDelay = c(2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L,
                     2L, 2L, 2L, 2L, 2L, 2L, 2L))
 
-edges <- data.frame(
-  stringsAsFactors = FALSE,
-  from = c("IR", "RR", "RR", "IR", "cpi", "Infected", "ce",
-           "probability", "Susceptible", "Infected"),
-  to = c("Infected", "Infected", "Recovered", "Susceptible", "ce",
-         "cpi", "IR", "IR", "probability", "RR"),
-  type = c("flow", "flow", "flow", "flow", "info_link", "info_link",
-           "info_link", "info_link", "info_link", "info_link")
+edges <- data.frame(stringsAsFactors=FALSE,
+        from = c("IR", "RR", "RR", "IR", "cpi", "Infected", "ce",
+                 "probability", "Susceptible", "Infected"),
+          to = c("Infected", "Infected", "Recovered", "Susceptible", "ce",
+                 "cpi", "IR", "IR", "probability", "RR"),
+        type = c("flow", "flow", "flow", "flow", "info_link", "info_link",
+                 "info_link", "info_link", "info_link", "info_link")
 )
 
-nodes <- data.frame(
-  stringsAsFactors=FALSE,
-  name = c("Infected", "Recovered", "Susceptible", "ce", "cpi", "IR",
-           "probability", "RR"),
-  type = c("stock", "stock", "stock", "variable", "variable", "variable",
-           "variable", "variable"),
-  equation = c("IR-RR", "RR", "-IR", "cpi*infectivity", "Infected*cr",
-               "ce*probability", "Susceptible/population",
-               "Infected/recoveryDelay")
-)
 
+nodes <- data.frame(stringsAsFactors=FALSE,
+        name = c("Infected", "Recovered", "Susceptible", "ce", "cpi", "IR",
+                 "probability", "RR"),
+        type = c("stock", "stock", "stock", "variable", "variable", "variable",
+                 "variable", "variable"),
+    equation = c("IR-RR", "RR", "-IR", "cpi*0.25", "Infected*8",
+                 "ce*probability", "Susceptible/1000", "Infected/2")
+)
 
 graph <- igraph::graph_from_data_frame(edges, directed = T,
                             vertices = nodes)
@@ -134,17 +131,17 @@ sim_df_lv <- data.frame(
 
 lv_dfs <- list(
   edges = data.frame(stringsAsFactors=FALSE,
-                     from = c("Bx", "Dx", "By", "Dy", "x", "x", "y", "x", "y", "y"),
-                     to = c("x", "x", "y", "y", "Bx", "Dx", "Dx", "By", "By", "Dy"),
-                     type = c("flow", "flow", "flow", "flow", "info_link", "info_link",
-                              "info_link", "info_link", "info_link",
-                              "info_link")),
+           from = c("Bx", "Dx", "By", "Dy", "x", "x", "y", "x", "y", "y"),
+             to = c("x", "x", "y", "y", "Bx", "Dx", "Dx", "By", "By", "Dy"),
+           type = c("flow", "flow", "flow", "flow", "info_link", "info_link",
+                    "info_link", "info_link", "info_link", "info_link")
+   ),
   nodes = data.frame(stringsAsFactors=FALSE,
-                     name = c("x", "y", "Bx", "Dx", "By", "Dy"),
-                     type = c("stock", "stock", "variable", "variable", "variable",
-                              "variable"),
-                     equation = c("Bx-Dx", "By-Dy", "a*x", "b*x*y", "c*x*y", "d*y")
-  )
+           name = c("x", "y", "Bx", "Dx", "By", "Dy"),
+           type = c("stock", "stock", "variable", "variable", "variable",
+                    "variable"),
+       equation = c("Bx-Dx", "By-Dy", "1*x", "0.2*x*y", "0.04*x*y", "0.5*y")
+   )
 )
 
 gr_lotka_volterra <- igraph::graph_from_data_frame(lv_dfs$edges, directed = T,

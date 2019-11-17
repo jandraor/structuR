@@ -203,10 +203,10 @@ run_LEEA <- function (graph, sim_df, method = "analytical") {
 
   if(method == "numerical") {
 
-    # lg_over_time <- calculate_loop_gains(graph, sim_df, sim_df$time,
-    #                                      method = "numerical")
+    lg_over_time <- calculate_loop_gains(graph, sim_df, sim_df$time,
+                                         method = "numerical")
     return(
-      list(loop_gains = "lg_over_time",
+      list(loop_gains = lg_over_time,
            eigenvalues = "eigenvalues_over_time",
            loop_analysis = "loop_analysis_over_time",
            gains_matrices = "list(A_matrix = Am,
