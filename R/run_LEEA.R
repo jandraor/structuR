@@ -1,68 +1,14 @@
-as_cycle_matrix <- function(graph, loops) {
-  edge_list  <- igraph::as_edgelist(graph)
-  edges      <- paste(edge_list[ , 1], edge_list[ , 2], sep = "|")
-  loop_names <- names(loops)
-
-  cycle_matrix <- matrix(0, nrow = length(loops),
-                         ncol = nrow(edge_list),
-                         dimnames = list(loop_names, edges))
-
-  for(i in 1:length(loops)){
-    loop          <- loops[[i]]
-    edges_in_loop <- c(loop, loop[1]) # closes the loop
-    n_j_iter      <- length(edges_in_loop) - 1 # number of j iterations
-
-    for(j in 1:n_j_iter) {
-      edge <- paste(edges_in_loop[j], edges_in_loop[j + 1], sep = "|")
-      cycle_matrix[i, edge] <- 1
-    }
-  }
-  cycle_matrix
-}
-
-# Calculate edge elasticities
-calculate_ee <- function(eigenvalue, graph, row, rx, lx, fx, gx) {
-
-  n_edges      <- igraph::gsize(graph)
-
-  if(eigenvalue == 0) return(rep(0, n_edges))
-
-  edges        <- igraph::E(graph)
-  n_edges      <- igraph::gsize(graph)
-  elasticities <- vector(length = n_edges)
-  levels       <-  names(igraph::V(graph)[[type == "stock"]])
-  variables    <- names(igraph::V(graph)[[type == "variable"]])
-
-  for(i in 1:n_edges) {
-    edge      <- edges[[i]]
-    edge_tail <- names(igraph::tail_of(graph, edge))
-    edge_head <- names(igraph::head_of(graph, edge))
-    edge_type <- edge$type
-    edge_gain_expr <- rlang::parse_expr(edge$edge_gain)
-    gain      <- with(row, eval(edge_gain_expr))
-
-    if(edge_type == "flow") {
-      elasticities[i] <- lx[which(levels == edge_head)] * gx[edge_tail, 1] * gain / eigenvalue
-    }
-
-    if(edge_type == "info_link" && edge_tail %in% levels) {
-      elasticities[i] <- fx[1, edge_head] * rx[which(levels == edge_tail)] * gain / eigenvalue
-    }
-
-    if(edge_type == "info_link" && edge_tail %in% variables) {
-      elasticities[i] <- fx[1, edge_head] * gx[edge_tail, 1] * gain / eigenvalue
-    }
-  }
-
-  elasticities
-}
-
 run_LEEA <- function (graph, sim_df, method = "analytical") {
   SILS             <- find_SILS(graph)
   cycle_matrix     <- as_cycle_matrix(graph, SILS)
   inv_cm           <- MASS::ginv(t(cycle_matrix)) # inverse cycle matrix
   rownames(inv_cm) <- rownames(cycle_matrix)
   colnames(inv_cm) <- colnames(cycle_matrix)
+
+  levels    <-  names(igraph::V(graph)[[type == "stock"]])
+  variables <- names(igraph::V(graph)[[type == "variable"]])
+  n_levels  <- length(levels)
+  n_vars    <- length(variables)
 
   if(method == "analytical") {
     #output from calculate loop gains (CLG) function
@@ -79,15 +25,10 @@ run_LEEA <- function (graph, sim_df, method = "analytical") {
                                     gain = with(sim_df, eval(parse(text = loop_gain$gain))))
                        }) %>% purrr::map_df(function(row) row)
 
-    levels    <-  names(igraph::V(graph)[[type == "stock"]])
-    variables <- names(igraph::V(graph)[[type == "variable"]])
-    n_levels  <- length(levels)
-    n_vars    <- length(variables)
-
     # Matrix of gains for edges that connect two stocks
     Am <- matrix(0, nrow = n_levels, ncol = n_levels) # Node to node
 
-    # Matrix of gains for flow
+    # Matrix of gains for flows
     Bm <- matrix(expression(0), nrow = n_levels, ncol = n_vars) # Flows
     rownames(Bm) <- levels
     colnames(Bm) <- variables
@@ -205,9 +146,65 @@ run_LEEA <- function (graph, sim_df, method = "analytical") {
 
     lg_over_time <- calculate_loop_gains(graph, sim_df, sim_df$time,
                                          method = "numerical")
+
+    leea_timestep_num <- by(sim_df, 1:nrow(sim_df), function(row){
+
+      # Matrix of gains for edges that connect two stocks
+      Am <- matrix(0, nrow = n_levels, ncol = n_levels) # Node to node
+
+      # Matrix of gains for flows
+      Bm <- matrix(0, nrow = n_levels, ncol = n_vars) # Flows
+      rownames(Bm) <- levels
+      colnames(Bm) <- variables
+
+      flow_edges   <- igraph::E(graph)[[type == "flow"]]
+      n_flows      <- length(flow_edges)
+
+      for(i in 1:n_flows){
+        flow      <- flow_edges[[i]]
+        edge_head <- names(igraph::head_of(graph, flow))
+        edge_tail <- names(igraph::tail_of(graph, flow))
+        edge_gain <- approx_edge_gain(graph, edge_head, edge_tail, row)
+        Bm[[edge_head, edge_tail]] <- edge_gain
+      }
+
+      # Matrix of gains for edges that connect a stock to a variable
+      Cm <- matrix(0, nrow = n_vars, ncol = n_levels)
+      rownames(Cm) <- variables
+      colnames(Cm) <- levels
+
+      # Matrix of gains for edges that connect a variable to another variable
+      Dm <- matrix(0, nrow = n_vars, ncol = n_vars)
+      rownames(Dm) <- variables
+      colnames(Dm) <- variables
+
+      info_edges   <- igraph::E(graph)[[type == "info_link"]]
+      n_info_edges <- length(info_edges)
+
+      for(i in 1:n_info_edges){
+        info_edge <- info_edges[[i]]
+        edge_head <- names(igraph::head_of(graph, info_edge))
+        edge_tail <- names(igraph::tail_of(graph, info_edge))
+
+        if(edge_tail %in% levels){ # Link from stock to variable
+          edge_gain <- approx_edge_gain(graph, edge_head, edge_tail, row)
+          Cm[[edge_head, edge_tail]] <- edge_gain
+        }
+
+        if(edge_tail %in% variables){ # Link from variable to variable
+          edge_gain <- approx_edge_gain(graph, edge_head, edge_tail, row)
+          Dm[[edge_head, edge_tail]] <- edge_gain
+        }
+      }
+
+      perform_analysis(Am, Bm, Cm, Dm, graph, row, inv_cm, n_levels, method)
+    })
+
+    eigenvalues_over_time <- purrr::map_df(leea_timestep_num, "eigenvalues")
+
     return(
       list(loop_gains = lg_over_time,
-           eigenvalues = "eigenvalues_over_time",
+           eigenvalues = eigenvalues_over_time,
            loop_analysis = "loop_analysis_over_time",
            gains_matrices = "list(A_matrix = Am,
                                  B_matrix = Bm,
