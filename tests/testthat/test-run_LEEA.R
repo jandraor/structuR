@@ -157,9 +157,14 @@ test_that("the function returns the expected properties in numerical mode", {
   expect_equal("graph" %in% expected_properties, TRUE)
 })
 
-test_that("the property eigenvalues returned by run_LEEA()in numerical mode is a data frame ", {
+test_that("the property eigenvalues returned by run_LEEA() in numerical mode is a data frame ", {
   output_LEEA <- run_LEEA(graph, sim_df, method = "numerical")
   expect_is(output_LEEA$eigenvalues, "data.frame")
+})
+
+test_that("the property loop_analysis returned by run_LEEA() in numerical mode is a data frame ", {
+  output_LEEA <- run_LEEA(graph, sim_df, method = "numerical")
+  expect_is(output_LEEA$loop_analysis, "data.frame")
 })
 
 test_that("the function returns the loop gains in analytical mode", {

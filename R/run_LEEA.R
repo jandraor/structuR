@@ -200,12 +200,13 @@ run_LEEA <- function (graph, sim_df, method = "analytical") {
       perform_analysis(Am, Bm, Cm, Dm, graph, row, inv_cm, n_levels, method)
     })
 
-    eigenvalues_over_time <- purrr::map_df(leea_timestep_num, "eigenvalues")
+    eigenvalues_over_time   <- purrr::map_df(leea_timestep_num, "eigenvalues")
+    loop_analysis_over_time <- purrr::map_df(leea_timestep_num, "loop_analysis")
 
     return(
       list(loop_gains = lg_over_time,
            eigenvalues = eigenvalues_over_time,
-           loop_analysis = "loop_analysis_over_time",
+           loop_analysis = loop_analysis_over_time,
            gains_matrices = "list(A_matrix = Am,
                                  B_matrix = Bm,
                                  C_matrix = Cm,

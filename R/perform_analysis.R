@@ -1,4 +1,4 @@
-context("Perform analysys")
+
 
 # Calculate edge elasticities
 calculate_ee <- function(eigenvalue, graph, row, rx, lx, fx, gx,

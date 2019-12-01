@@ -1,3 +1,5 @@
+context("Perform analysis")
+
 #===============================================================================
 # LOTKA-VOLTERRA MODEL
 #===============================================================================
@@ -80,7 +82,7 @@ inv_cm <- matrix(
                   c("Bx|x", "Dx|x", "By|y", "Dy|y", "x|Bx", "x|Dx", "y|Dx", "x|By", "y|By", "y|Dy")))
 
 
-test_that("perform_analysis() returns the correct eigenvalues", {
+test_that("perform_analysis() returns the expected eigenvalues", {
   expected_evs <- list(
     list(EV1_real = 0.25, EV1_img = 0.19365,
          EV2_real = 0.25, EV2_img = -0.19365),
@@ -97,11 +99,80 @@ test_that("perform_analysis() returns the correct eigenvalues", {
     eigenvalues_df <- output_pa$eigenvalues
     expected_ev <- expected_evs[[i]]
     EV1 <- eigenvalues_df[eigenvalues_df$eigenvalue == "EV1", ]
-    expect_equal(EV1$real_value, expected_ev$EV1_real, tol = 1e5)
-    expect_equal(EV1$imaginary_value, expected_ev$EV1_img, tol = 1e5)
+    expect_equal(EV1$real_value, expected_ev$EV1_real, tol = 1e-5)
+    expect_equal(EV1$imaginary_value, expected_ev$EV1_img, tol = 1e-5)
     EV2 <- eigenvalues_df[eigenvalues_df$eigenvalue == "EV2", ]
-    expect_equal(EV2$real_value, expected_ev$EV2_real, tol = 1e5)
-    expect_equal(EV2$imaginary_value, expected_ev$EV2_img, tol = 1e5)
+    expect_equal(EV2$real_value, expected_ev$EV2_real, tol = 1e-5)
+    expect_equal(EV2$imaginary_value, expected_ev$EV2_img, tol = 1e-5)
   }
 
+})
+
+test_that("perform_analysis() returns the expected loop analysis", {
+  expected_las <- list(
+    list(EV1_L1_Re = 0.5, EV1_L1_Im = -0.90370, EV1_L1_abs = 1.03280,
+         EV1_L2_Re = -0.2, EV1_L2_Im = 0.36148, EV1_L2_abs = 0.41312,
+         EV1_L3_Re = 0, EV1_L3_Im = 0.41312, EV1_L3_abs = 0.41312,
+         EV1_L4_Re = 0.2, EV1_L4_Im = 0.36148, EV1_L4_abs = 0.41312,
+         EV1_L5_Re = -0.25, EV1_L5_Im = -0.45185, EV1_L5_abs = 0.51640,
+         EV2_L1_Re = 0.5, EV2_L1_Im = 0.90370, EV2_L1_abs = 1.03280,
+         EV2_L2_Re = -0.2, EV2_L2_Im = -0.36148, EV2_L2_abs = 0.41312,
+         EV2_L3_Re = 0, EV2_L3_Im = -0.41312, EV2_L3_abs = 0.41312,
+         EV2_L4_Re = 0.2, EV2_L4_Im = -0.36148, EV2_L4_abs = 0.41312,
+         EV2_L5_Re = -0.25, EV2_L5_Im = 0.45185, EV2_L5_abs = 0.51640),
+    list(EV1_L1_Re = 0.5, EV1_L1_Im = 0.30757, EV1_L1_abs = 0.58703,
+         EV1_L2_Re = -1.03322, EV1_L2_Im = -0.63557, EV1_L2_abs = 1.21305,
+         EV1_L3_Re = 0, EV1_L3_Im = 0.61124, EV1_L3_abs = 0.61124,
+         EV1_L4_Re = 0.26234, EV1_L4_Im = -0.16137, EV1_L4_abs = 0.30800,
+         EV1_L5_Re = -0.25, EV1_L5_Im = 0.15378, EV1_L5_abs = 0.29351,
+         EV2_L1_Re = 0.5, EV2_L1_Im = -0.30757, EV2_L1_abs = 0.58703,
+         EV2_L2_Re = -1.03322, EV2_L2_Im = 0.63557, EV2_L2_abs = 1.21305,
+         EV2_L3_Re = 0, EV2_L3_Im = -0.61124, EV2_L3_abs = 0.61124,
+         EV2_L4_Re = 0.26234, EV2_L4_Im = 0.16137, EV2_L4_abs = 0.30800,
+         EV2_L5_Re = -0.25, EV2_L5_Im = -0.15378, EV2_L5_abs = 0.29351),
+    list(EV1_L1_Re = 1.43996, EV1_L1_Im = 0, EV1_L1_abs = 1.43996,
+         EV1_L2_Re = -0.62444, EV1_L2_Im = 0, EV1_L2_abs = 0.62444,
+         EV1_L3_Re = -0.26996, EV1_L3_Im = 0, EV1_L3_abs = 0.26996,
+         EV1_L4_Re = -0.11671, EV1_L4_Im = 0, EV1_L4_abs = 0.11671,
+         EV1_L5_Re = 0.21998, EV1_L5_Im = 0, EV1_L5_abs = 0.21998,
+         EV2_L1_Re = -0.43996, EV2_L1_Im = 0, EV2_L1_abs = 0.43996,
+         EV2_L2_Re = 0.19079, EV2_L2_Im = 0, EV2_L2_abs = 0.19079,
+         EV2_L3_Re = 0.26996, EV2_L3_Im = 0, EV2_L3_abs = 0.26996,
+         EV2_L4_Re = 0.38199, EV2_L4_Im = 0, EV2_L4_abs = 0.38199,
+         EV2_L5_Re = -0.71998, EV2_L5_Im = 0, EV2_L5_abs = 0.71998)
+  )
+
+  for(i in seq(1:length(expected_las))) {
+    output_pa <- perform_analysis(
+      Ams[[i]], Bms[[i]], Cms[[i]], Dms[[i]], gr_lotka_volterra, sim_df_lv[i, ],
+      inv_cm, n_levels, "numerical")
+    loop_analysis_df <- output_pa$loop_analysis
+    # Expected loop analysis
+    expected_la <- expected_las[[i]]
+
+    EV1     <- loop_analysis_df[loop_analysis_df$eigenvalue_id == "EV1", ]
+    loops   <- paste0("L", 1:5)
+
+    for(loop in loops) {
+      EV_L  <- EV1[EV1$loop_id == loop, ]
+      expect_equal(EV_L$loop_influence_Re,
+                   expected_la[[paste0("EV1_", loop,"_Re")]], tol = 1e-5)
+      expect_equal(EV_L$loop_influence_Im,
+                   expected_la[[paste0("EV1_", loop,"_Im")]], tol = 1e-5)
+      expect_equal(EV_L$loop_influence_abs,
+                   expected_la[[paste0("EV1_", loop,"_abs")]], tol = 1e-5)
+    }
+
+    EV2     <- loop_analysis_df[loop_analysis_df$eigenvalue_id == "EV2", ]
+
+    for(loop in loops) {
+      EV_L  <- EV2[EV2$loop_id == loop, ]
+      expect_equal(EV_L$loop_influence_Re,
+                   expected_la[[paste0("EV2_", loop,"_Re")]], tol = 1e-5)
+      expect_equal(EV_L$loop_influence_Im,
+                   expected_la[[paste0("EV2_", loop,"_Im")]], tol = 1e-5)
+      expect_equal(EV_L$loop_influence_abs,
+                   expected_la[[paste0("EV2_", loop,"_abs")]], tol = 1e-5)
+    }
+  }
 })
