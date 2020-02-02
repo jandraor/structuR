@@ -13,16 +13,21 @@ find_directed_cycles <- function(graph) {
     node <- nodes[[i]]
     neighbours <- igraph::neighbors(graph, node , mode = "out")
 
-    pathways <- lapply(neighbours, function(neighbor) {
+    #pathways per neighbour
+    pathways_nb <- lapply(neighbours, function(neighbor) {
       igraph::all_simple_paths(graph, neighbor, node, mode = "out")
     })
 
-    pathways <- delete.NULLs(pathways)
+    pathways_nb <- delete.NULLs(pathways_nb)
 
-    if(length(pathways) > 0) {
-      discovered_loops <- lapply(pathways, function(pathway) {
-        unlist(pathway)
+    if(length(pathways_nb) > 0) {
+
+      pathway_list <- unlist(pathways_nb, recursive = FALSE, use.names = FALSE)
+
+      discovered_loops <- lapply(pathway_list, function(pathway) {
+        pathway %>% as.list() %>% unlist()
       })
+
       loops <- c(loops, discovered_loops)
     }
 
