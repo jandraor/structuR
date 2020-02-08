@@ -1,9 +1,3 @@
-clip_matrix <- function(m, lower, upper) {
-  clipped_m <- apply(m, 1, function(row) pmax(lower, pmin(row, upper)))
-  rownames(clipped_m) <- colnames(clipped_m)
-  clipped_m
-}
-
 find_SILS <- function(graph) {
 
   gc          <- find_geodetic_cycles(graph)
@@ -33,7 +27,6 @@ find_SILS <- function(graph) {
   SILS <- list()
 
   while(length(LA) > 0){
-
     # Number of contributing edges per loop
     n_cont_edges <- sapply(LA, function(adj_matrix) {
       sum(clip_matrix(adj_matrix - B, 0, 1))
@@ -46,6 +39,8 @@ find_SILS <- function(graph) {
       LA[names_ncl] <- NULL # Removes non-contributory loops
       gc[names_ncl] <- NULL # Removes non-contributory loops
     }
+
+    n_cont_edges <- n_cont_edges[n_cont_edges > 0]
 
     if(sum(n_cont_edges) > 0) {
       # If there are two loops or more, the first position is taken.
