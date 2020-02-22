@@ -167,8 +167,7 @@ test_that("the property loop_analysis returned by run_LEEA() in numerical mode i
   expect_is(output_LEEA$loop_analysis, "data.frame")
 })
 
-test_that("the function returns the loop gains in analytical mode", {
-  # Testing SIR model
+test_that("the function returns the loop gains in analytical mode for SIR model", {
 
   output_LEEA <- run_LEEA(graph, sim_df, method = "analytical")
   actual_lg   <- output_LEEA$loop_gains
@@ -202,9 +201,9 @@ test_that("the function returns the loop gains in analytical mode", {
   gain <- actual_lg %>% dplyr::filter(time == 10, loop_id == "L3") %>%
     dplyr::pull(gain)
   expect_equal(gain, 0.04042, tolerance = 1e-3)
+})
 
-  # Testing Lotka-Volterra model
-
+test_that("the function returns the loop gains in analytical mode for Lotka-Volterra model", {
   output_LEEA <- run_LEEA(gr_lotka_volterra, sim_df_lv, method = "analytical")
   actual_lg   <- output_LEEA$loop_gains
 
@@ -228,33 +227,33 @@ test_that("the function returns the loop gains in analytical mode", {
     dplyr::pull(gain)
   expect_equal(gain, -0.43365, tolerance = 1e-3)
 
-  gain <- actual_lg %>% dplyr::filter(time == 1, loop_id == "L3") %>%
+  gain <- actual_lg %>% dplyr::filter(time == 1, loop_id == "L5") %>%
     dplyr::pull(gain)
   expect_equal(gain, -0.16, tolerance = 1e-3)
-  gain <- actual_lg %>% dplyr::filter(time == 5, loop_id == "L3") %>%
+  gain <- actual_lg %>% dplyr::filter(time == 5, loop_id == "L5") %>%
     dplyr::pull(gain)
   expect_equal(gain, -1.08421, tolerance = 1e-3)
-  gain <- actual_lg %>% dplyr::filter(time == 10, loop_id == "L3") %>%
+  gain <- actual_lg %>% dplyr::filter(time == 10, loop_id == "L5") %>%
     dplyr::pull(gain)
   expect_equal(gain, -0.11504, tolerance = 1e-3)
 
-  gain <- actual_lg %>% dplyr::filter(time == 1, loop_id == "L4") %>%
+  gain <- actual_lg %>% dplyr::filter(time == 1, loop_id == "L3") %>%
     dplyr::pull(gain)
   expect_equal(gain, 0.4, tolerance = 1e-3)
-  gain <- actual_lg %>% dplyr::filter(time == 5, loop_id == "L4") %>%
+  gain <- actual_lg %>% dplyr::filter(time == 5, loop_id == "L3") %>%
     dplyr::pull(gain)
   expect_equal(gain, 0.52467, tolerance = 1e-3)
-  gain <- actual_lg %>% dplyr::filter(time == 10, loop_id == "L4") %>%
+  gain <- actual_lg %>% dplyr::filter(time == 10, loop_id == "L3") %>%
     dplyr::pull(gain)
   expect_equal(gain, 0.26527, tolerance = 1e-3)
 
-  gain <- actual_lg %>% dplyr::filter(time == 1, loop_id == "L5") %>%
+  gain <- actual_lg %>% dplyr::filter(time == 1, loop_id == "L4") %>%
     dplyr::pull(gain)
   expect_equal(gain, -0.5)
-  gain <- actual_lg %>% dplyr::filter(time == 5, loop_id == "L5") %>%
+  gain <- actual_lg %>% dplyr::filter(time == 5, loop_id == "L4") %>%
     dplyr::pull(gain)
   expect_equal(gain, -0.5)
-  gain <- actual_lg %>% dplyr::filter(time == 10, loop_id == "L5") %>%
+  gain <- actual_lg %>% dplyr::filter(time == 10, loop_id == "L4") %>%
     dplyr::pull(gain)
   expect_equal(gain, -0.5)
 })

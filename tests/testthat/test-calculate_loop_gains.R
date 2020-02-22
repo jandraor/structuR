@@ -59,12 +59,11 @@ gr_lotka_volterra <- igraph::graph_from_data_frame(lv_dfs$edges, directed = T,
 
 #===============================================================================
 
-
-test_that("calculate_loop_gains returns the loop gains in numerical approx mode", {
+actual_lg  <- calculate_loop_gains(gr_lotka_volterra,
+                                   sim_df_lv, c(1, 5, 10), "numerical")
+test_that("calculate_loop_gains returns the loop gains in numerical approx mode
+          for L1", {
   # Testing Lotka-Volterra model
-
-  actual_lg  <- calculate_loop_gains(gr_lotka_volterra,
-                                     sim_df_lv, c(1, 5, 10), "numerical")
 
   gain <- actual_lg %>% dplyr::filter(time == 1, loop_id == "L1") %>%
     dplyr::pull(gain)
@@ -75,7 +74,10 @@ test_that("calculate_loop_gains returns the loop gains in numerical approx mode"
   gain <- actual_lg %>% dplyr::filter(time == 10, loop_id == "L1") %>%
     dplyr::pull(gain)
   expect_equal(gain, 1)
+})
 
+test_that("calculate_loop_gains returns the loop gains in numerical approx mode
+          for L2", {
   gain <- actual_lg %>% dplyr::filter(time == 1, loop_id == "L2") %>%
     dplyr::pull(gain)
   expect_equal(gain, -0.4, tolerance = 1e-3)
@@ -85,34 +87,45 @@ test_that("calculate_loop_gains returns the loop gains in numerical approx mode"
   gain <- actual_lg %>% dplyr::filter(time == 10, loop_id == "L2") %>%
     dplyr::pull(gain)
   expect_equal(gain, -0.43365, tolerance = 1e-3)
+})
 
+test_that("calculate_loop_gains returns the loop gains in numerical approx mode
+          for L3", {
   gain <- actual_lg %>% dplyr::filter(time == 1, loop_id == "L3") %>%
     dplyr::pull(gain)
-  expect_equal(gain, -0.16, tolerance = 1e-3)
+  expect_equal(gain, 0.4, tolerance = 1e-3)
   gain <- actual_lg %>% dplyr::filter(time == 5, loop_id == "L3") %>%
     dplyr::pull(gain)
-  expect_equal(gain, -1.08421, tolerance = 1e-3)
+  expect_equal(gain, 0.52467, tolerance = 1e-3)
   gain <- actual_lg %>% dplyr::filter(time == 10, loop_id == "L3") %>%
     dplyr::pull(gain)
-  expect_equal(gain, -0.11504, tolerance = 1e-3)
+  expect_equal(gain, 0.26527, tolerance = 1e-3)
+})
 
+test_that("calculate_loop_gains returns the loop gains in numerical approx mode
+          for L4", {
   gain <- actual_lg %>% dplyr::filter(time == 1, loop_id == "L4") %>%
     dplyr::pull(gain)
-  expect_equal(gain, 0.4, tolerance = 1e-3)
+  expect_equal(gain, -0.5)
   gain <- actual_lg %>% dplyr::filter(time == 5, loop_id == "L4") %>%
     dplyr::pull(gain)
-  expect_equal(gain, 0.52467, tolerance = 1e-3)
+  expect_equal(gain, -0.5)
   gain <- actual_lg %>% dplyr::filter(time == 10, loop_id == "L4") %>%
-    dplyr::pull(gain)
-  expect_equal(gain, 0.26527, tolerance = 1e-3)
-
-  gain <- actual_lg %>% dplyr::filter(time == 1, loop_id == "L5") %>%
-    dplyr::pull(gain)
-  expect_equal(gain, -0.5)
-  gain <- actual_lg %>% dplyr::filter(time == 5, loop_id == "L5") %>%
-    dplyr::pull(gain)
-  expect_equal(gain, -0.5)
-  gain <- actual_lg %>% dplyr::filter(time == 10, loop_id == "L5") %>%
     dplyr::pull(gain)
   expect_equal(gain, -0.5)
 })
+
+test_that("calculate_loop_gains returns the loop gains in numerical approx mode
+          for L5", {
+  gain <- actual_lg %>% dplyr::filter(time == 1, loop_id == "L5") %>%
+    dplyr::pull(gain)
+  expect_equal(gain, -0.16, tolerance = 1e-3)
+  gain <- actual_lg %>% dplyr::filter(time == 5, loop_id == "L5") %>%
+    dplyr::pull(gain)
+  expect_equal(gain, -1.08421, tolerance = 1e-3)
+  gain <- actual_lg %>% dplyr::filter(time == 10, loop_id == "L5") %>%
+    dplyr::pull(gain)
+  expect_equal(gain, -0.11504, tolerance = 1e-3)
+})
+
+

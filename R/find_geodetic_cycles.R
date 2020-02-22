@@ -20,7 +20,6 @@ find_geodetic_cycles <- function(graph) {
     if(n_nodes == 1) return (NULL)
 
     distance_matrix <- igraph::distances(strong_sgr, mode = "out")
-
     nodes <- colnames(distance_matrix)
 
     aux_dis_m                       <- distance_matrix
@@ -32,16 +31,16 @@ find_geodetic_cycles <- function(graph) {
     upper_triangular_matrix         <- aux_dis_m
     transposed_utm                  <- t(upper_triangular_matrix)
 
-    loop_matrix <- transposed_utm + lower_triangular_matrix
+    loop_matrix  <- transposed_utm + lower_triangular_matrix
     loop_lengths <- sort(unique(as.vector(loop_matrix)))
     loop_lengths <- loop_lengths[loop_lengths >= 2]
-
 
     # Loops in strong subgraph
     loops_in_ss <- list()
 
     for(loop_length in loop_lengths) {
       pairs <- which(loop_matrix == loop_length, arr.ind = TRUE)
+
 
       for(i in seq_len(nrow(pairs))) {
         u <- nodes[pairs[i, 1]]
@@ -50,11 +49,20 @@ find_geodetic_cycles <- function(graph) {
         paths_u_v <- igraph::all_simple_paths(graph, from = u, to = v)
         paths_v_u <- igraph::all_simple_paths(graph, from = v, to = u)
 
-        paths_permutation <- purrr::cross2(paths_u_v, paths_v_u)
+        paths_permutation  <- purrr::cross2(paths_u_v, paths_v_u)
+
+        filter_permutation <- sapply(paths_permutation, function(permutation){
+          n_edges_u_v <- length(permutation[[1]]) - 1
+          n_edges_v_u <- length(permutation[[2]]) - 1
+
+          (n_edges_u_v + n_edges_v_u) == loop_length
+        })
+
+        paths_permutation <- paths_permutation[filter_permutation]
 
         purrr::walk(paths_permutation, function(permutation) {
           path_u_v  <- names(permutation[[1]])
-          path_v_u <- names(permutation[[2]])
+          path_v_u  <- names(permutation[[2]])
 
           path_back <- NULL
           if(length(path_v_u) > 2) {
@@ -69,6 +77,7 @@ find_geodetic_cycles <- function(graph) {
           }
         })
       }
+
     }
     is_duplicated <- duplicated(lapply(loops_in_ss, sort))
     unique_loops <- loops_in_ss[!is_duplicated]
