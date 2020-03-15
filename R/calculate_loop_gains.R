@@ -3,7 +3,7 @@ calculate_loop_gains <- function(graph, sim_df = NULL, time_steps = NULL,
 
   if(method == "analytical") return(analytical_loop_gains(graph))
 
-  if(method == "numerical") numerical_loop_gains(graph, sim_df, time_steps)
+  if(method == "numerical") numerical_loop_gains(time_steps, graph, sim_df)
 }
 
 analytical_loop_gains <- function(graph) {
@@ -56,7 +56,7 @@ analytical_loop_gains <- function(graph) {
   list(graph         = graph, loop_gains    = loop_gains)
 }
 
-numerical_loop_gains <- function(graph, sim_df, time_steps) {
+numerical_loop_gains <- function(time_steps, graph, sim_df) {
 
   SILS_pathways <- find_SILS(graph)
 
