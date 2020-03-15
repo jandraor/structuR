@@ -1,8 +1,5 @@
 context("Find directed cycles")
 
-library(igraph)
-
-
 #===============================================================================
 # SIR MODEL
 #===============================================================================
@@ -21,8 +18,8 @@ graph_dfs <- list(
            )
 )
 
-gr <- graph_from_data_frame(graph_dfs$edges, directed = T,
-                            vertices = graph_dfs$nodes)
+gr <- igraph::graph_from_data_frame(graph_dfs$edges, directed = T,
+                                    vertices = graph_dfs$nodes)
 
 #===============================================================================
 # INVENTORY-LABOUR
@@ -87,8 +84,8 @@ graph_dfs <- list(
           )
 )
 
-gr_IL <- graph_from_data_frame(graph_dfs$edges, directed = T,
-                               vertices = graph_dfs$nodes)
+gr_IL <- igraph::graph_from_data_frame(graph_dfs$edges, directed = T,
+                                       vertices = graph_dfs$nodes)
 
 test_that("the function returns the correct number of directed cycles", {
   directed_cycles <- find_directed_cycles(gr)
