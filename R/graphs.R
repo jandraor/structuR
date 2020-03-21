@@ -7,6 +7,7 @@ loop_influence_at_time <- function(time_point, leea_output) {
                                     y = loop_influence_Re)) +
     ggrepel::geom_text_repel(aes(label = loop_id), box.padding = 1) +
     ggplot2::geom_point(size = 5, colour = "steelblue") +
+    ggplot2::xlim(0, NA) +
     ggplot2::facet_wrap(~eigenvalue_id) +
     ggplot2::theme_bw() +
     ggplot2::labs(x = "Abs[I]", y = "Re[I]",
