@@ -1,6 +1,6 @@
 
 loop_influence_at_time <- function(time_point, leea_output) {
-  loop_analysis <- output_LEEA_num$loop_analysis %>%
+  loop_analysis <- leea_output$loop_analysis %>%
     filter(time == time_point)
 
   ggplot2::ggplot(loop_analysis, aes(x = loop_influence_abs,
