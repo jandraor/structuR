@@ -19,7 +19,7 @@ analytical_loop_gains <- function(graph) {
     head_equation_text <- igraph::V(graph)[edge_head]$equation
     with_respect_to    <- names(edge_tail)
     equation           <- parse(text = head_equation_text)
-    derivative         <- D(equation, with_respect_to)
+    derivative         <- stats::D(equation, with_respect_to)
     edge_gains[i]      <- deparse(derivative)
   }
 

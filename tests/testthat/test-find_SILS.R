@@ -16,7 +16,7 @@ graph_dfs <- list(
   )
 )
 
-gr <- graph_from_data_frame(graph_dfs$edges, directed = T,
+gr <- igraph::graph_from_data_frame(graph_dfs$edges, directed = T,
                             vertices = graph_dfs$nodes)
 
 #===============================================================================
@@ -82,7 +82,7 @@ graph_dfs <- list(
   )
 )
 
-gr_IL <- graph_from_data_frame(graph_dfs$edges, directed = T,
+gr_IL <- igraph::graph_from_data_frame(graph_dfs$edges, directed = T,
                                vertices = graph_dfs$nodes)
 
 test_that("find_SILS() returns the correct number of loops", {

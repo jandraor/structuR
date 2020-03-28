@@ -128,17 +128,17 @@ gr_lotka_volterra <- igraph::graph_from_data_frame(lv_dfs$edges, directed = T,
 #==============================================================================
 
 test_that("the function returns a list in analytical mode", {
-  output_LEEA <- run_LEEA(graph, sim_df, method = "analytical")
+  output_LEEA <- run_LEEA(0:20, graph, sim_df, method = "analytical")
   expect_is(output_LEEA, "list")
 })
 
 test_that("the function returns a list in numerical mode", {
-  output_LEEA <- run_LEEA(graph, sim_df, method = "numerical")
+  output_LEEA <- run_LEEA(0:20, graph, sim_df, method = "numerical")
   expect_is(output_LEEA, "list")
 })
 
 test_that("the function returns the expected properties in analytical mode", {
-  output_LEEA <- run_LEEA(graph, sim_df, method = "analytical")
+  output_LEEA <- run_LEEA(0:20, graph, sim_df, method = "analytical")
   expected_properties <- names(output_LEEA)
   expect_equal("loop_gains" %in% expected_properties, TRUE)
   expect_equal("eigenvalues" %in% expected_properties, TRUE)
@@ -148,7 +148,7 @@ test_that("the function returns the expected properties in analytical mode", {
 })
 
 test_that("the function returns the expected properties in numerical mode", {
-  output_LEEA <- run_LEEA(graph, sim_df, method = "numerical")
+  output_LEEA <- run_LEEA(0:20, graph, sim_df, method = "numerical")
   expected_properties <- names(output_LEEA)
   expect_equal("loop_gains" %in% expected_properties, TRUE)
   expect_equal("eigenvalues" %in% expected_properties, TRUE)
@@ -158,18 +158,18 @@ test_that("the function returns the expected properties in numerical mode", {
 })
 
 test_that("the property eigenvalues returned by run_LEEA() in numerical mode is a data frame ", {
-  output_LEEA <- run_LEEA(graph, sim_df, method = "numerical")
+  output_LEEA <- run_LEEA(0:20, graph, sim_df, method = "numerical")
   expect_is(output_LEEA$eigenvalues, "data.frame")
 })
 
 test_that("the property loop_analysis returned by run_LEEA() in numerical mode is a data frame ", {
-  output_LEEA <- run_LEEA(graph, sim_df, method = "numerical")
+  output_LEEA <- run_LEEA(0:20, graph, sim_df, method = "numerical")
   expect_is(output_LEEA$loop_analysis, "data.frame")
 })
 
 test_that("the function returns the loop gains in analytical mode for SIR model", {
 
-  output_LEEA <- run_LEEA(graph, sim_df, method = "analytical")
+  output_LEEA <- run_LEEA(0:20, graph, sim_df, method = "analytical")
   actual_lg   <- output_LEEA$loop_gains
 
   gain <- actual_lg %>% dplyr::filter(time == 0, loop_id == "L1") %>%
@@ -204,7 +204,8 @@ test_that("the function returns the loop gains in analytical mode for SIR model"
 })
 
 test_that("the function returns the loop gains in analytical mode for Lotka-Volterra model", {
-  output_LEEA <- run_LEEA(gr_lotka_volterra, sim_df_lv, method = "analytical")
+  output_LEEA <- run_LEEA(c(1, 5, 10), gr_lotka_volterra, sim_df_lv,
+                          method = "analytical")
   actual_lg   <- output_LEEA$loop_gains
 
   gain <- actual_lg %>% dplyr::filter(time == 1, loop_id == "L1") %>%
