@@ -2,7 +2,7 @@
 
 # Calculate edge elasticities
 calculate_ee <- function(eigenvalue, graph, row, rx, lx, fx, gx,
-                         method = "analytical") {
+                         method = "analytical", graph_funs) {
 
   n_edges      <- igraph::gsize(graph)
 
@@ -26,7 +26,7 @@ calculate_ee <- function(eigenvalue, graph, row, rx, lx, fx, gx,
     }
 
     if(method == "numerical") {
-      gain <- approx_edge_gain(graph, edge_head, edge_tail, row)
+      gain <- approx_edge_gain(graph, edge_head, edge_tail, row, graph_funs)
     }
 
 
@@ -78,7 +78,8 @@ as_cycle_matrix <- function(graph, loops) {
 #' @param n_levels Number of levels
 #' @param method A string
 #' @return A list with two dataframes.
-perform_analysis <- function(Am, Bm, Cm, Dm, graph, row, inv_cm, n_levels, method) {
+perform_analysis <- function(Am, Bm, Cm, Dm, graph, row, inv_cm, n_levels,
+                             method, graph_funs = NULL) {
   Um           <- solve(diag(nrow(Dm)) - Dm)
 
   Jacobian     <- Am + Bm %*% Um %*% Cm
@@ -106,7 +107,9 @@ perform_analysis <- function(Am, Bm, Cm, Dm, graph, row, inv_cm, n_levels, metho
     fx <- lx %*% Bm %*% Um
     gx <- Um %*% Cm %*% rx
 
-    linkEla         <- calculate_ee(z, graph, row, rx, lx, fx, gx, method)
+    linkEla         <- calculate_ee(z, graph, row, rx, lx, fx, gx, method,
+                                    graph_funs)
+
     loop_elasticity <- inv_cm %*% linkEla
     loop_influence  <- loop_elasticity * z
 

@@ -42,3 +42,30 @@ test_that("approx_edge_gain() returns the expected gain", {
   expect_equal(actual_gain, expected_gain)
   #, tolerance = 1e-5
 })
+
+test_that("approx_edge_gain() handles graphical functions", {
+  row_df <- data.frame(x = 10, y = 50)
+
+  dfs <- list(
+    edges = data.frame(from = "x", to = "y", type = "info_link"),
+    nodes = data.frame(name     = c("x", "y"),
+                       type     = c("variable", "variable"),
+                       equation = c("10", "f_x(x)")
+    )
+  )
+
+  gr <- igraph::graph_from_data_frame(dfs$edges, directed = T,
+                                      vertices = dfs$nodes)
+
+  graph_funs  <- list(
+    f_x = approxfun(
+      x      = 1:100,
+      y      = 3 *(1:100) + 20,
+      method = "linear",
+      yleft  = 20,
+      yright = 320))
+
+  actual_gain <- approx_edge_gain(gr, "y", "x", row_df, graph_funs)
+
+  expect_equal(actual_gain, 3)
+})

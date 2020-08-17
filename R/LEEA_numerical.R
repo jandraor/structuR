@@ -1,4 +1,4 @@
-LEEA_numerical <- function(graph, sim_df) {
+LEEA_numerical <- function(graph, sim_df, graph_funs) {
   SILS             <- find_SILS(graph)
   cycle_matrix     <- as_cycle_matrix(graph, SILS)
   inv_cm           <- MASS::ginv(t(cycle_matrix)) # inverse cycle matrix
@@ -11,7 +11,7 @@ LEEA_numerical <- function(graph, sim_df) {
   n_vars    <- length(variables)
 
   lg_over_time <- calculate_loop_gains(graph, sim_df, sim_df$time,
-                                       method = "numerical")
+                                       method = "numerical", graph_funs)
 
   leea_timestep_num <- by(sim_df, 1:nrow(sim_df), function(row){
 
@@ -53,17 +53,20 @@ LEEA_numerical <- function(graph, sim_df) {
       edge_tail <- names(igraph::tail_of(graph, info_edge))
 
       if(edge_tail %in% levels){ # Link from stock to variable
-        edge_gain <- approx_edge_gain(graph, edge_head, edge_tail, row)
+        edge_gain <- approx_edge_gain(graph, edge_head, edge_tail, row,
+                                      graph_funs)
         Cm[[edge_head, edge_tail]] <- edge_gain
       }
 
       if(edge_tail %in% variables){ # Link from variable to variable
-        edge_gain <- approx_edge_gain(graph, edge_head, edge_tail, row)
+        edge_gain <- approx_edge_gain(graph, edge_head, edge_tail, row,
+                                      graph_funs)
         Dm[[edge_head, edge_tail]] <- edge_gain
       }
     }
 
-    perform_analysis(Am, Bm, Cm, Dm, graph, row, inv_cm, n_levels, "numerical")
+    perform_analysis(Am, Bm, Cm, Dm, graph, row, inv_cm, n_levels, "numerical",
+                     graph_funs)
   })
 
   eigenvalues_over_time   <- purrr::map_df(leea_timestep_num, "eigenvalues")
