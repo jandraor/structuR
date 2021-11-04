@@ -4,7 +4,7 @@
 \alias{run_LEEA}
 \title{Run Loop Eigenvalue Elasticity Analysis}
 \usage{
-run_LEEA(times, graph, sim_df, method = "analytical")
+run_LEEA(times, graph, sim_df, method = "analytical", graph_funs = NULL)
 }
 \arguments{
 \item{times}{A numeric vector that indicates in which time steps the
@@ -17,6 +17,11 @@ model. This dataframe must contain the column 'time'.}
 
 \item{method}{A string indicating the method for estimating edge gains. It
 can be either 'analytical' or 'numerical'.}
+
+\item{graph_funs}{A list of graphical functions.}
+}
+\value{
+
 }
 \description{
 Run Loop Eigenvalue Elasticity Analysis

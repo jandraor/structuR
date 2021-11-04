@@ -17,7 +17,7 @@ test_that("impact() returns the expected string", {
   expect_equal(actual, expected)
 })
 
-test_that("impacts_on() returns the expected data.frame", {
+test_that("struc_impacts_on() returns the expected data.frame", {
 
   flows <- data.frame(
     stock    = c("x", "y", "y", "z", "z"),
@@ -40,7 +40,7 @@ test_that("impacts_on() returns the expected data.frame", {
                  pathways   = pathways,
                  velocities = velocities)
 
-  actual <- impacts_on("x", inputs)
+  actual <- struc_impacts_on("x", inputs)
 
   expect_s3_class(actual, "data.frame")
 
@@ -56,15 +56,16 @@ test_that("impacts_on() returns the expected data.frame", {
   expect_equal(actual, expected)
 })
 
-test_that("evaluate_impact() returns the expected data.frame", {
+test_that("struc_eval_impact() returns the expected data.frame", {
 
   I_z_x <- "-(R * x) * (a * y - z) / (-R * x * z)"
   I_x_x <- "-(R * z) * (-R * x * z) / (-R * x * z)"
 
 
-  impact_df <- data.frame(origin      = c("z", "x"),
-                          destination = c("x", "x"),
-                          impact      = c(I_z_x, I_x_x))
+  impact_df <- data.frame(from    = c("z", "x"),
+                          to      = c("x", "x"),
+                          through = c("f1", "f1"),
+                          impact  = c(I_z_x, I_x_x))
 
   x0  <- 0.974182771
   x10 <- 0.466656479
@@ -81,7 +82,7 @@ test_that("evaluate_impact() returns the expected data.frame", {
     R = c(2L, 2L),
     a = c(1L, 1L))
 
-  actual <- evaluate_impact(impact_df, sim_df)
+  actual <- struc_eval_impact(impact_df, sim_df)
 
   expect_s3_class(actual, "data.frame")
 
