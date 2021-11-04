@@ -1,13 +1,15 @@
 test_that("impact() returns the expected string", {
-  o <- "z"
-  d <- "x"
+
+  eq   <- "-(R * x * z)"
+  from <- "z"
+  to   <- "x"
 
   v_df <- data.frame(stock    = c("x", "y", "z"),
                      equation = c("-R * x * z",
                                   " R * x * z - a * y",
                                   "a * y - z"))
 
-  actual <- impact(o, d, v_df)
+  actual <- impact(eq, from, to, v_df)
 
   expect_type(actual, "character")
 
@@ -17,16 +19,28 @@ test_that("impact() returns the expected string", {
 
 test_that("impacts_on() returns the expected data.frame", {
 
-  pathways_df <- data.frame(
-    origin      = c("z", "x", "z", "y", "x", "y", "z"),
-    destination = c("x", "x", "y", "y", "y", "z", "z"))
+  flows <- data.frame(
+    stock    = c("x", "y", "y", "z", "z"),
+    flow     = c("f1", "f1", "f2", "f2", "f3"),
+    sign     = c("-", "+", "-", "+", "-"),
+    equation = c("R*x*z", "R*x*z", "a*y", "a*y", "y"))
 
-  v_df <- data.frame(stock    = c("x", "y", "z"),
-                     equation = c("-R * x * z",
-                                  " R * x * z - a * y",
-                                  "a * y - z"))
+  pathways <- data.frame(
+    from    = c("z", "x", "z", "x", "y", "y", "z"),
+    to      = c("x", "x", "y", "y", "y", "z", "z"),
+    through = c("f1", "f1", "f1", "f1", "f2", "f2", "f3")
+  )
 
-  actual <- impacts_on("x", pathways_df, v_df)
+  velocities <- data.frame(stock    = c("x", "y", "z"),
+                             equation = c("-R * x * z",
+                                          " R * x * z - a * y",
+                                          "a * y - z"))
+
+  inputs <- list(flows      = flows,
+                 pathways   = pathways,
+                 velocities = velocities)
+
+  actual <- impacts_on("x", inputs)
 
   expect_s3_class(actual, "data.frame")
 
@@ -34,8 +48,9 @@ test_that("impacts_on() returns the expected data.frame", {
   I_x_x <- "-(R * z) * (-R * x * z) / (-R * x * z)"
 
 
-  expected <- data.frame(origin      = c("z", "x"),
-                         destination = c("x", "x"),
+  expected <- data.frame(from      = c("z", "x"),
+                         to        = c("x", "x"),
+                         through   = c("f1", "f1"),
                          impact      = c(I_z_x, I_x_x))
 
   expect_equal(actual, expected)
