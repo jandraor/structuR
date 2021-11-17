@@ -97,6 +97,6 @@ test_that("struc_eval_impact() returns the expected data.frame", {
   expect_equal(actual[2, 3], e4)
 
   actual_names   <- colnames(actual)
-  expected_names <- c("time", "I_z_x", "I_x_x")
+  expected_names <- c("time", "I__z__x__f1", "I__x__x__f1")
   expect_equal(actual_names, expected_names)
 })

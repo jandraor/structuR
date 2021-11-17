@@ -2,7 +2,7 @@
 % Please edit documentation in R/impact.R
 \name{struc_impacts_on}
 \alias{struc_impacts_on}
-\title{Construct analytical impact equations for a given stock (level)}
+\title{Construct impact equations for a given stock (level)}
 \usage{
 struc_impacts_on(stk, inputs)
 }
@@ -17,7 +17,7 @@ the package \code{readsdr}.}
 A data frame.
 }
 \description{
-Construct analytical impact equations for a given stock (level)
+Construct impact equations for a given stock (level)
 }
 \examples{
  flows <- data.frame(

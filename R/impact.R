@@ -1,4 +1,4 @@
-#' Construct analytical impact equations for a given stock (level)
+#' Construct impact equations for a given stock (level)
 #'
 #' @param stk A string that indicates the stock's name
 #' @param inputs A list of three elements (flows, pathways, velocities). One can
@@ -99,7 +99,7 @@ struc_eval_impact <- function(impact_df, sim_df) {
 
   purrr::map_dfc(impact_list, function(row) {
 
-    col_name  <- stringr::str_glue("I_{row$from}_{row$to}")
+    col_name  <- stringr::str_glue("I__{row$from}__{row$to}__{row$through}")
     vals      <- with(sim_df, eval(parse(text = row$impact)))
     df        <- data.frame(vals)
     names(df) <- col_name
