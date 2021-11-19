@@ -1,3 +1,20 @@
+#' Determine pathway dominance over time
+#'
+#' @param impact_df A data frame returned by \code{struc_eval_impact}
+#'
+#' @return A data frame
+#' @export
+#'
+#' @examples
+#' impact_df <- data.frame(time                = c(1, 8),
+#' I__x__y__f1         = c(-0.001087266, -0.953119253),
+#' I__y__y__f1         = c(1.9991130, 1.3627462),
+#' I__y__y__f2         = c(-1, -1),
+#' pos_impact          = c(1.9991130, 1.3627462),
+#' neg_impact          = c(-1.001087, -1.953119),
+#' total_impact        = c(0.9980257, -0.5903731),
+#' dominant_behaviour  = c(1, -1))
+#' struc_dominance(impact_df)
 struc_dominance <- function(impact_df) {
 
   cols     <- colnames(impact_df)
