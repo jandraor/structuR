@@ -106,8 +106,10 @@ struc_eval_impact <- function(impact_df, sim_df) {
     df
   }) -> impact_cols
 
-  cbind(sim_df["time"], impact_cols)
+  impact_ts <- cbind(sim_df["time"], impact_cols)
+  impact_df <- dominant_behaviour(impact_ts)
 
+  impact_df
 }
 
 impact <- function(eq, from, to, v_df) {
@@ -117,5 +119,19 @@ impact <- function(eq, from, to, v_df) {
   pd      <- Deriv::Deriv(eq, from) # Partial derivative
 
   stringr::str_glue("{pd} * ({from_dt}) / ({to_dt})")
+}
+
+dominant_behaviour <- function(impact_ts) {
+
+ impact_subset <- subset(impact_ts, select = -time)
+
+ impact_ts$pos_impact <- apply(impact_subset, 1, function(x) sum(x[x > 0]))
+ impact_ts$neg_impact <- apply(impact_subset, 1, function(x) sum(x[x < 0]))
+
+ impact_ts$total_impact <- impact_ts$pos_impact + impact_ts$neg_impact
+
+ impact_ts$dominant_behaviour <- sign(impact_ts$total_impact)
+
+ impact_ts
 }
 
