@@ -9,11 +9,9 @@ test_that("impact() returns the expected string", {
                                   " R * x * z - a * y",
                                   "a * y - z"))
 
-  actual <- impact(eq, from, to, v_df)
+  actual   <- impact(eq, from, to, v_df)
+  expected <- stringr::str_glue("-(R * x) * (a * y - z) / (-R * x * z)")
 
-  expect_type(actual, "character")
-
-  expected <- "-(R * x) * (a * y - z) / (-R * x * z)"
   expect_equal(actual, expected)
 })
 

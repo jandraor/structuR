@@ -38,7 +38,7 @@ Construct impact equations for a given stock (level)
      " R * x * z - a * y",
      "a * y - z"))
 
- inputs <- list(flows      = flows
+ inputs <- list(flows      = flows,
                 pathways   = pathways,
                 velocities = velocities)
 

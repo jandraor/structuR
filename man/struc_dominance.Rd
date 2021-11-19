@@ -7,9 +7,7 @@
 struc_dominance(impact_df)
 }
 \arguments{
-\item{impact_df}{A data frame which contains the numerical impacts on a stock
-over time. The first column corresponds to \emph{time} and the other columns to
-the impacts.}
+\item{impact_df}{A data frame returned by \code{struc_eval_impact}}
 }
 \value{
 A data frame

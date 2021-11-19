@@ -14,7 +14,19 @@ test_that("struc_dominance() returns the expected data frame", {
                          dominant_pathway = c("I__y__y__f1",
                                               "I__x__y__f1,I__y__y__f2"))
 
-  expect_equal(actual, expected, check.attributes = FALSE)
+  expect_equal(actual, expected, ignore_attr = TRUE)
+})
+
+test_that("struc_dominance() chooses over dominant combinations", {
+
+  impact_df <- data.frame(time = 1, P1 = -1.297865, P2 = 1.270045, P3 = -1,
+                          pos_impact = 1.270045, neg_impact = -2.297865,
+                          total_impact = -1.027821, dominant_behaviour = -1)
+
+  actual   <- struc_dominance(impact_df)
+  expected <- data.frame(time = 1, dominant_pathway = "P1")
+
+  expect_equal(actual, expected, ignore_attr = TRUE)
 })
 
 test_that("remove_dominated_impacts() returns the expected data frame", {
@@ -37,7 +49,7 @@ test_that("remove_dominated_impacts() returns the expected data frame", {
                          I__y__y__f1 = c(1.9991130, NA),
                          I__y__y__f2 = c(NA, -1))
 
-  expect_equal(actual, expected, check.attributes = FALSE)
+  expect_equal(actual, expected, ignore_attr = TRUE)
 })
 
 test_that("pathway_combn() returns the expected data frame", {
@@ -78,7 +90,7 @@ test_that("evaluate_pathways_over_time() returns the expected data frame", {
 
  expected    <- rbind(row1, row2)
 
- expect_equal(actual, expected, check.attributes = FALSE)
+ expect_equal(actual, expected, ignore_attr = TRUE)
 })
 
 test_that("create_opposing_df() returns the expected data frame", {
@@ -97,7 +109,7 @@ test_that("create_opposing_df() returns the expected data frame", {
   expected <- data.frame(time            = c(1, 8),
                          opposing_impact = c(-1.001087266, 1.3627462))
 
-  expect_equal(actual, expected, check.attributes = FALSE)
+  expect_equal(actual, expected, ignore_attr = TRUE)
 })
 
 test_that("determine_dominance() returns the expected data frame", {
@@ -124,6 +136,5 @@ test_that("determine_dominance() returns the expected data frame", {
 
   expected <- data.frame(time = c(1, 8), dominant_pathway = c("P2", "P1,P3"))
 
-  expect_equal(actual, expected, check.attributes = FALSE)
+  expect_equal(actual, expected, ignore_attr = TRUE)
 })
-

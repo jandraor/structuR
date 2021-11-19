@@ -36,7 +36,7 @@ pathway_combn <- function(pathways) {
   n_path <- length(pathways)
 
   purrr::map_dfr(1:n_path, function(i) {
-    combns  <- combn(pathways, i)
+    combns  <- utils::combn(pathways, i)
     formula <- apply(combns, MARGIN = 2,  paste, collapse = " + ")
 
     data.frame(combn = formula, n = i)
@@ -98,7 +98,16 @@ determine_dominance <- function(evaluated_pathways, opposing_df) {
                                   ifelse(impact + opposing_impact > 0, TRUE,
                                          FALSE))
 
-  dominant_combn <- comparison_df[comparison_df$dominates == TRUE,]
+  raw_dominant_combn <- comparison_df[comparison_df$dominates == TRUE,]
+
+  by(raw_dominant_combn, raw_dominant_combn$time, function(df) {
+
+    min_n <- min(df$n)
+
+    df[df$n == min_n, , drop = FALSE]
+  }) -> dominant_list
+
+  dominant_combn <- do.call(rbind, dominant_list)
 
   dominant_combn$combn     <- gsub(" \\+ ", ",", dominant_combn$combn)
   dominant_combn           <- dominant_combn[, c("time", "combn")]
