@@ -102,9 +102,11 @@ determine_dominance <- function(evaluated_pathways, opposing_df) {
 
   by(raw_dominant_combn, raw_dominant_combn$time, function(df) {
 
-    min_n <- min(df$n)
+    min_n   <- min(df$n)
+    df      <- df[df$n == min_n, , drop = FALSE]
+    max_imp <- max(df$impact)
 
-    df[df$n == min_n, , drop = FALSE]
+    df[df$impact == max_imp, , drop = FALSE]
   }) -> dominant_list
 
   dominant_combn <- do.call(rbind, dominant_list)

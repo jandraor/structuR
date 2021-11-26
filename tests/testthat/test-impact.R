@@ -9,8 +9,13 @@ test_that("impact() returns the expected string", {
                                   " R * x * z - a * y",
                                   "a * y - z"))
 
-  actual   <- impact(eq, from, to, v_df)
+  actual   <- impact(eq, from, to, v_df, simplify = FALSE)
   expected <- stringr::str_glue("-(R * x) * (a * y - z) / (-R * x * z)")
+
+  expect_equal(actual, expected)
+
+  actual   <- impact(eq, from, to, v_df, simplify = TRUE)
+  expected <- "(a * y - z)/z"
 
   expect_equal(actual, expected)
 })
@@ -38,7 +43,7 @@ test_that("struc_impacts_on() returns the expected data.frame", {
                  pathways   = pathways,
                  velocities = velocities)
 
-  actual <- struc_impacts_on("x", inputs)
+  actual <- struc_impacts_on("x", inputs, simplify = FALSE)
 
   expect_s3_class(actual, "data.frame")
 

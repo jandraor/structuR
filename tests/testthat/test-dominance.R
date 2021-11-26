@@ -17,7 +17,7 @@ test_that("struc_dominance() returns the expected data frame", {
   expect_equal(actual, expected, ignore_attr = TRUE)
 })
 
-test_that("struc_dominance() chooses over dominant combinations", {
+test_that("struc_dominance() chooses over dominant combinations of different lengths", {
 
   impact_df <- data.frame(time = 1, P1 = -1.297865, P2 = 1.270045, P3 = -1,
                           pos_impact = 1.270045, neg_impact = -2.297865,
@@ -25,6 +25,18 @@ test_that("struc_dominance() chooses over dominant combinations", {
 
   actual   <- struc_dominance(impact_df)
   expected <- data.frame(time = 1, dominant_pathway = "P1")
+
+  expect_equal(actual, expected, ignore_attr = TRUE)
+})
+
+test_that("struc_dominance() chooses over two or more dominant pathways of equal length", {
+
+  impact_df <- data.frame(time = 1, P1 = -0.5, P2 = -1,
+                          pos_impact = 0, neg_impact = -3,
+                          total_impact = -3, dominant_behaviour = -1)
+
+  actual   <- struc_dominance(impact_df)
+  expected <- data.frame(time = 1, dominant_pathway = "P2")
 
   expect_equal(actual, expected, ignore_attr = TRUE)
 })

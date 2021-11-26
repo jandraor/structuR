@@ -4,7 +4,7 @@
 \alias{struc_impacts_on}
 \title{Construct impact equations for a given stock (level)}
 \usage{
-struc_impacts_on(stk, inputs)
+struc_impacts_on(stk, inputs, simplify = TRUE)
 }
 \arguments{
 \item{stk}{A string that indicates the stock's name}
@@ -12,6 +12,9 @@ struc_impacts_on(stk, inputs)
 \item{inputs}{A list of three elements (flows, pathways, velocities). One can
 obtain this list automatically from the function \code{sd_impact_inputs} from
 the package \code{readsdr}.}
+
+\item{simplify}{A boolean that indicates whether the analytical expression is
+algebraically simplified}
 }
 \value{
 A data frame.

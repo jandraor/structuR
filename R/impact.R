@@ -4,6 +4,8 @@
 #' @param inputs A list of three elements (flows, pathways, velocities). One can
 #' obtain this list automatically from the function \code{sd_impact_inputs} from
 #' the package \code{readsdr}.
+#' @param simplify A boolean that indicates whether the analytical expression is
+#' algebraically simplified
 #'
 #' @return A data frame.
 #' @export
@@ -32,7 +34,7 @@
 #'                 velocities = velocities)
 #'
 #'  struc_impacts_on("x", inputs)
-struc_impacts_on <- function(stk, inputs) {
+struc_impacts_on <- function(stk, inputs, simplify = TRUE) {
 
   v_df <- inputs$velocities
 
@@ -51,7 +53,7 @@ struc_impacts_on <- function(stk, inputs) {
     from <- pathway$from
     to   <- pathway$to
 
-    impact(eq, from, to, v_df)
+    impact(eq, from, to, v_df, simplify)
   }) -> impacts
 
   pathways_df$impact <- impacts
@@ -112,13 +114,17 @@ struc_eval_impact <- function(impact_df, sim_df) {
   impact_df
 }
 
-impact <- function(eq, from, to, v_df) {
+impact <- function(eq, from, to, v_df, simplify) {
 
   from_dt <- subset(v_df, stock == from)[, "equation"]
   to_dt   <- subset(v_df, stock == to)[, "equation"]
   pd      <- Deriv::Deriv(eq, from) # Partial derivative
 
-  stringr::str_glue("{pd} * ({from_dt}) / ({to_dt})")
+  analytical_impact <- stringr::str_glue("{pd} * ({from_dt}) / ({to_dt})")
+
+  if(simplify) analytical_impact <- Deriv::Simplify(analytical_impact)
+
+  analytical_impact
 }
 
 dominant_behaviour <- function(impact_ts) {
