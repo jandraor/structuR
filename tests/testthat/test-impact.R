@@ -10,7 +10,7 @@ test_that("impact() returns the expected string", {
                                   "a * y - z"))
 
   actual   <- impact(eq, from, to, v_df, simplify = FALSE)
-  expected <- stringr::str_glue("-(R * x) * (a * y - z) / (-R * x * z)")
+  expected <- stringr::str_glue("(-(R * x)) * (a * y - z) / (-R * x * z)")
 
   expect_equal(actual, expected)
 
@@ -47,8 +47,8 @@ test_that("struc_impacts_on() returns the expected data.frame", {
 
   expect_s3_class(actual, "data.frame")
 
-  I_z_x <- "-(R * x) * (a * y - z) / (-R * x * z)"
-  I_x_x <- "-(R * z) * (-R * x * z) / (-R * x * z)"
+  I_z_x <- "(-(R * x)) * (a * y - z) / (-R * x * z)"
+  I_x_x <- "(-(R * z)) * (-R * x * z) / (-R * x * z)"
 
 
   expected <- data.frame(from      = c("z", "x"),
@@ -57,6 +57,35 @@ test_that("struc_impacts_on() returns the expected data.frame", {
                          impact      = c(I_z_x, I_x_x))
 
   expect_equal(actual, expected)
+
+
+ flows <- data.frame(stock    = c("a", "a"),
+                     flow     = c("f4", "f5"),
+                     sign     = c("+", "-"),
+                     equation = c("((1-omega)*w)", ("(a)")))
+
+ pathways <- data.frame(from    = c("w", "a"),
+                        to      = c("a", "a"),
+                        through = c("f4", "f5"))
+
+ velocities <- data.frame(
+   stock    = c("w", "a"),
+   equation = c("(R*x*(y+eta*a))-(omega*w)-((1-omega)*w)", "((1-omega)*w)-(a)"))
+
+ inputs <- list(flows      = flows,
+                pathways   = pathways,
+                velocities = velocities)
+
+ actual   <- struc_impacts_on("a", inputs, simplify = TRUE)
+
+ expected <- data.frame(
+   from    = c("w", "a"),
+   to      = c("a", "a"),
+   through = c("f4", "f5"),
+   impact  = c("(1 - omega) * (R * x * (a * eta + y) - w)/(w * (1 - omega) -      a)", "-1"))
+
+ expect_equal(actual, expected)
+
 })
 
 test_that("struc_eval_impact() returns the expected data.frame", {

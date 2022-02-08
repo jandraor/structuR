@@ -120,7 +120,7 @@ impact <- function(eq, from, to, v_df, simplify) {
   to_dt   <- subset(v_df, stock == to)[, "equation"]
   pd      <- Deriv::Deriv(eq, from) # Partial derivative
 
-  analytical_impact <- stringr::str_glue("{pd} * ({from_dt}) / ({to_dt})")
+  analytical_impact <- stringr::str_glue("({pd}) * ({from_dt}) / ({to_dt})")
 
   if(simplify) analytical_impact <- Deriv::Simplify(analytical_impact)
 
